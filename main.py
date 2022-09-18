@@ -16,8 +16,8 @@ class App:
     def pipeinf(self,url):
         db = pd.read_excel(url)
         db2 = pd.read_excel(url,sheet_name="edges")
-        """for i in range(db.shape[0]):
-            self._create_statement(db['node'][i], db['ntype'][i],db['region'][i])"""
+        for i in range(db.shape[0]):
+            self._create_statement(db['node'][i], db['ntype'][i],db['region'][i])
         for i in range(db2.shape[0]):
             self.create_friendship(db2['from'][i], db2['to'][i], db2['from_to'][i], int(db2['length'][i]), db2['status'][i],db2['line'][i], int(db2['nfiber'][i]),db2['step'][i])
     def _create_statement(self, node_name,ntype,region):
