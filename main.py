@@ -128,7 +128,7 @@ class App:
 
 if __name__ == "__main__":
     # доп инф https://neo4j.com/developer/aura-connect-driver/
-    scheme = "neo4j"  # Connecting to Aura, use the "neo4j+s" URI scheme
+    scheme = "neo4j"
     host_name = "localhost"
     port = 7687
     url = "{scheme}://{host_name}:{port}".format(scheme=scheme, host_name=host_name, port=port)
