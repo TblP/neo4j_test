@@ -21,13 +21,14 @@ class App:
         for i in range(db2.shape[0]):
             self.create_friendship(db2['from'][i], db2['to'][i], db2['from_to'][i], int(db2['length'][i]), db2['status'][i],db2['line'][i], int(db2['nfiber'][i]),db2['step'][i])
 
-    # _create_statement Создает ноды на сервере
+    # _create_statement отправляет данные на сервере в execute_write подается методы обработки + данные(Переменные)
     def _create_statement(self, node_name,ntype,region):
         with self.driver.session() as session:
             # Write transactions allow the driver to handle retries and transient errors
             result = session.execute_write(
                 self.create_statement, node_name,ntype,region)
 
+    #перед методами обработки нужно писать @staticmethod
     @staticmethod
     def create_statement(tx,node_name,ntype,region):
         query = (
@@ -43,7 +44,7 @@ class App:
                 query=query, exception=exception))
             raise
 
-    # _create_statement Создает соединения на сервере
+    # create_friendship Создает соединения на сервере
     def create_friendship(self, node1_name, node2_name,fromto,lng,stat,line,nf,step):
         with self.driver.session() as session:
             # Write transactions allow the driver to handle retries and transient errors
@@ -61,12 +62,14 @@ class App:
     @staticmethod
     def _create_and_return_friendship(tx, node1_name, node2_name,fromto,lng,stat,line,nf,step):
         # query писать код для обработки как в нео4ж (для разделения команд нужно делать в конце строки пробел)
+
         query = (
             "MATCH (n1:NODE1),(n2:NODE1) "
             "WHERE (n1.name=$node_name AND n2.name = $node_name2) "
             "CREATE (n1)-[k:PYKMIK { from: $fromto, Length: $leng, Status: $status, Line: $line, nfiber: $nf, step: $step}]->(n2) "
             "RETURN n1, k, n2"
         )
+        #в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
         result = tx.run(query, node_name=node1_name, node_name2=node2_name,fromto=fromto,leng=str(lng),status=stat, line=line, nf=str(nf), step=step)
         try:
             d = []
@@ -91,20 +94,27 @@ class App:
                 query=query, exception=exception))
             raise
 
-    def find_person(self, person_name):
+    """Поиск ноды в бд подаем 'название' ноды и в каком лейбле она должна находиться
+    #with self.driver.session() as session: result = session.execute_write данная конструкция делает подключение 
+    к серверу бд и записывает результат  
+    более подробно https://neo4j.com/docs/api/python-driver/4.4/api.html?highlight=session+write_transaction#neo4j.Session.write_transaction"""
+    def find_node(self, node_name,graph_name):
         with self.driver.session() as session:
-            result = session.read_transaction(self._find_and_return_person, person_name)
+            result = session.execute_write(self._find_and_return_node, node_name,graph_name)
             for record in result:
-                print("Found person: {record}".format(record=record))
+                print("Found node: {record}".format(record=record))
+
 
     @staticmethod
-    def _find_and_return_person(tx, person_name):
+    def _find_and_return_node(tx, node_name1,graph_name1):
+        # query писать код для обработки как в нео4ж (для разделения команд нужно делать в конце строки пробел)
         query = (
-            "MATCH (p:Person) "
-            "WHERE p.name = $person_name "
+            "MATCH (p:$graph_name) "
+            "WHERE p.name = $node_name "
             "RETURN p.name AS name"
         )
-        result = tx.run(query, person_name=person_name)
+        # в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
+        result = tx.run(query, node_name=node_name1,graph_name=graph_name1)
         return [record["name"] for record in result]
 
 
