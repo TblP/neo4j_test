@@ -31,9 +31,11 @@ class App:
     #перед методами обработки нужно писать @staticmethod
     @staticmethod
     def create_statement(tx,node_name,ntype,region):
+        # query писать код для обработки как в нео4ж (для разделения команд нужно делать в конце строки пробел)
         query = (
             "CREATE (n1:NODE2 { name: $node_name, ntype: $ntype, region: $region}) "
         )
+        # в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
         result = tx.run(query, node_name=node_name,ntype=ntype,region=region)
         try:
             return [{"n1": record["n1"]["name"]["ntype"]["region"]}
@@ -94,13 +96,13 @@ class App:
                 query=query, exception=exception))
             raise
 
-    """Поиск ноды в бд подаем 'название' ноды и в каком лейбле она должна находиться
-    #with self.driver.session() as session: result = session.execute_write данная конструкция делает подключение 
+    """find_node - Поиск ноды в бд подаем 'название' ноды и в каком лейбле она должна находиться
+    #with self.driver.session() as session: result = session.read_transaction данная конструкция делает подключение 
     к серверу бд и записывает результат  
     более подробно https://neo4j.com/docs/api/python-driver/4.4/api.html?highlight=session+write_transaction#neo4j.Session.write_transaction"""
     def find_node(self, node_name,graph_name):
         with self.driver.session() as session:
-            result = session.execute_write(self._find_and_return_node, node_name,graph_name)
+            result = session.read_transaction(self._find_and_return_node, node_name,graph_name)
             for record in result:
                 print("Found node: {record}".format(record=record))
 
