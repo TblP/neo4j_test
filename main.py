@@ -55,8 +55,10 @@ class App:
             # Write transactions allow the driver to handle retries and transient errors
             result = session.execute_write(
                 self._create_and_return_friendship, node1_name, node2_name,fromto,lng,stat,line,nf,step)
-            for row in result:
-                print("Created friendship between: {p1}, {p2} from {knows_from}")
+
+        """если print работает то все хорошо если нет то result пустой и значит неправильно составлена query  
+           for row in result:
+                print("Created friendship between: {p1}, {p2} from {knows_from}".format(p1=row["n1"],p2=row["n2"],knows_from=row["k"]))"""
 
 
     #{ FromTo: $fromto, Length: $leng, Status: $status, Line: $line, nfiber: $nf, step: $step }
