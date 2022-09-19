@@ -9,7 +9,7 @@ class App:
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def close(self):
-        # Don't forget to close the driver connection when you are finished with it
+        # всегда в конце сессии нужно закрывать подключение
         self.driver.close()
 
     """PIPEINF Подает информацию из файла построчно """
@@ -27,7 +27,7 @@ class App:
     # _create_statement отправляет данные на сервере в execute_write подается методы обработки + данные(Переменные)
     def _create_statement(self, node_name,ntype,region):
         with self.driver.session() as session:
-            # Write transactions allow the driver to handle retries and transient errors
+            # отправка результата на сервер
             result = session.execute_write(
                 self.create_statement, node_name,ntype,region)
 
@@ -43,7 +43,7 @@ class App:
         try:
             return [{"n1": record["n1"]["name"]["ntype"]["region"]}
                     for record in result]
-        # Capture any errors along with the query and data for traceability
+        # проверка на подключание
         except ServiceUnavailable as exception:
             logging.error("{query} raised an error: \n {exception}".format(
                 query=query, exception=exception))
@@ -52,7 +52,7 @@ class App:
     # create_friendship Создает соединения на сервере
     def create_friendship(self, node1_name, node2_name,fromto,lng,stat,line,nf,step):
         with self.driver.session() as session:
-            # Write transactions allow the driver to handle retries and transient errors
+            # запись на сервер
             result = session.execute_write(
                 self._create_and_return_friendship, node1_name, node2_name,fromto,lng,stat,line,nf,step)
 
@@ -95,7 +95,7 @@ class App:
                 })
 
             return d
-            # Capture any errors along with the query and data for traceability
+            # отлавливание ошибки подключения к серверу
         except ServiceUnavailable as exception:
             logging.error("{query} raised an error: \n {exception}".format(
                 query=query, exception=exception))
@@ -127,7 +127,7 @@ class App:
 
 
 if __name__ == "__main__":
-    # See https://neo4j.com/developer/aura-connect-driver/ for Aura specific connection URL.
+    # доп инф https://neo4j.com/developer/aura-connect-driver/
     scheme = "neo4j"  # Connecting to Aura, use the "neo4j+s" URI scheme
     host_name = "localhost"
     port = 7687
