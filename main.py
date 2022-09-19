@@ -14,10 +14,13 @@ class App:
 
     """PIPEINF Подает информацию из файла построчно """
     def pipeinf(self,url):
+        #чтение excel
         db = pd.read_excel(url)
         db2 = pd.read_excel(url,sheet_name="edges")
+        #подача данных на сервер (создание нод)
         for i in range(db.shape[0]):
             self._create_statement(db['node'][i], db['ntype'][i],db['region'][i])
+        # подача данных на сервер (соединение нод)
         for i in range(db2.shape[0]):
             self.create_friendship(db2['from'][i], db2['to'][i], db2['from_to'][i], int(db2['length'][i]), db2['status'][i],db2['line'][i], int(db2['nfiber'][i]),db2['step'][i])
 
@@ -35,7 +38,7 @@ class App:
         query = (
             "CREATE (n1:NODE2 { name: $node_name, ntype: $ntype, region: $region}) "
         )
-        # в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
+        # в tx.run нужно подавать команды (query) и данные которые нужно обработать
         result = tx.run(query, node_name=node_name,ntype=ntype,region=region)
         try:
             return [{"n1": record["n1"]["name"]["ntype"]["region"]}
@@ -71,7 +74,7 @@ class App:
             "CREATE (n1)-[k:PYKMIK { from: $fromto, Length: $leng, Status: $status, Line: $line, nfiber: $nf, step: $step}]->(n2) "
             "RETURN n1, k, n2"
         )
-        #в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
+        #в tx.run нужно подавать команды (query) и данные которые нужно обработать
         result = tx.run(query, node_name=node1_name, node_name2=node2_name,fromto=fromto,leng=str(lng),status=stat, line=line, nf=str(nf), step=step)
         try:
             d = []
@@ -115,7 +118,7 @@ class App:
             "WHERE p.name = $node_name "
             "RETURN p.name AS name"
         )
-        # в tx.run нужно подавать сами команды (query) и данные которые нужно обработать
+        # в tx.run нужно подавать команды (query) и данные которые нужно обработать
         result = tx.run(query, node_name=node_name1,graph_name=graph_name1)
         return [record["name"] for record in result]
 
