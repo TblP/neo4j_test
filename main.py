@@ -12,7 +12,7 @@ class App:
         # Don't forget to close the driver connection when you are finished with it
         self.driver.close()
 
-    """PIPEINF Подает информацию из файла по строчно """
+    """PIPEINF Подает информацию из файла построчно """
     def pipeinf(self,url):
         db = pd.read_excel(url)
         db2 = pd.read_excel(url,sheet_name="edges")
